@@ -1,5 +1,5 @@
 import { handle } from 'hono/vercel';
-import app from '../server/boot';
+import app from '../dist/boot.js';
 
 export const GET = handle(app);
 export const POST = handle(app);
