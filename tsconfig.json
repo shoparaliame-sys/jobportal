@@ -23,6 +23,8 @@
       "@db/*": [
         "./db/*"
       ]
-    }
+    },
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true
   }
 }
