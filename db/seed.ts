@@ -1,4 +1,4 @@
-import { getDb } from "../server/queries/connection";
+import { getDb } from "../api/queries/connection";
 import * as schema from "./schema";
 import { hash } from "bcryptjs";
 import { eq } from "drizzle-orm";
