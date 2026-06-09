@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { eq, desc, and, sql, gte } from "drizzle-orm";
 import { createRouter, adminQuery } from "./middleware";
 import { getDb } from "./queries/connection";
 import * as schema from "@db/schema";
+import { processFeeds } from "./sync-feeds";
 
 export const adminRouter = createRouter({
   stats: adminQuery.query(async () => {
@@ -129,7 +131,8 @@ export const adminRouter = createRouter({
     )
     .mutation(async ({ input }) => {
       const db = getDb();
-      const [company] = await db.insert(schema.companies).values(input).returning();
+      const slug = `${input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").substring(0, 80)}-${Date.now()}`;
+      const [company] = await db.insert(schema.companies).values({ ...input, slug }).returning();
       return company;
     }),
 
@@ -219,7 +222,8 @@ export const adminRouter = createRouter({
     )
     .mutation(async ({ input }) => {
       const db = getDb();
-      const [job] = await db.insert(schema.jobs).values(input).returning();
+      const slug = `${input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").substring(0, 80)}-${Date.now()}`;
+      const [job] = await db.insert(schema.jobs).values({ ...input, slug } as any).returning();
       return job;
     }),
 
@@ -416,8 +420,18 @@ export const adminRouter = createRouter({
     )
     .mutation(async ({ input }) => {
       const db = getDb();
-      const [feed] = await db.insert(schema.feeds).values(input).returning();
-      return feed;
+      try {
+        const [feed] = await db.insert(schema.feeds).values(input).returning();
+        return feed;
+      } catch (err: any) {
+        if (err.code === "23505" || err.message?.includes("feeds_url_unique") || err.message?.includes("duplicate key")) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Un flux avec cette URL existe déjà.",
+          });
+        }
+        throw err;
+      }
     }),
 
   updateFeed: adminQuery
@@ -434,8 +448,18 @@ export const adminRouter = createRouter({
     .mutation(async ({ input }) => {
       const db = getDb();
       const { id, ...data } = input;
-      await db.update(schema.feeds).set(data).where(eq(schema.feeds.id, id));
-      return { success: true };
+      try {
+        await db.update(schema.feeds).set(data).where(eq(schema.feeds.id, id));
+        return { success: true };
+      } catch (err: any) {
+        if (err.code === "23505" || err.message?.includes("feeds_url_unique") || err.message?.includes("duplicate key")) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Un flux avec cette URL existe déjà.",
+          });
+        }
+        throw err;
+      }
     }),
 
   deleteFeed: adminQuery
@@ -446,9 +470,69 @@ export const adminRouter = createRouter({
       return { success: true };
     }),
 
+  feedStats: adminQuery.query(async () => {
+    const db = getDb();
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    const [
+      feedStatusCounts,
+      avgResponseTimeQuery,
+      jobsToday,
+      jobsWeek,
+      jobsMonth
+    ] = await Promise.all([
+      db.select({ status: schema.feeds.status, count: sql<number>`count(*)` }).from(schema.feeds).groupBy(schema.feeds.status),
+      db.select({ avg: sql<number>`avg(${schema.feeds.averageResponseTime})` }).from(schema.feeds).where(eq(schema.feeds.isActive, true)),
+      db.select({ count: sql<number>`sum(${schema.feedLogs.jobsImported})` }).from(schema.feedLogs).where(gte(schema.feedLogs.startedAt, today)),
+      db.select({ count: sql<number>`sum(${schema.feedLogs.jobsImported})` }).from(schema.feedLogs).where(gte(schema.feedLogs.startedAt, startOfWeek)),
+      db.select({ count: sql<number>`sum(${schema.feedLogs.jobsImported})` }).from(schema.feedLogs).where(gte(schema.feedLogs.startedAt, startOfMonth)),
+    ]);
+
+    return {
+      statusCounts: feedStatusCounts,
+      averageResponseTime: avgResponseTimeQuery[0]?.avg ?? 0,
+      importedToday: jobsToday[0]?.count ?? 0,
+      importedWeek: jobsWeek[0]?.count ?? 0,
+      importedMonth: jobsMonth[0]?.count ?? 0,
+    };
+  }),
+
+  feedLogs: adminQuery
+    .input(
+      z.object({
+        feedId: z.number().optional(),
+        limit: z.number().default(50)
+      })
+    )
+    .query(async ({ input }) => {
+      const db = getDb();
+      let query = db.select().from(schema.feedLogs);
+      
+      if (input.feedId) {
+        query = query.where(eq(schema.feedLogs.feedId, input.feedId)) as any;
+      }
+      
+      return query.orderBy(desc(schema.feedLogs.startedAt)).limit(input.limit);
+    }),
+
+  syncFeed: adminQuery
+    .input(z.object({ id: z.number().optional() }))
+    .mutation(async ({ input }) => {
+      // Run in background without awaiting, so it doesn't block the request if it takes long
+      // Passing `true` as the second argument to indicate it is a manual sync from the UI
+      processFeeds(input.id, true).catch(console.error);
+      return { success: true };
+    }),
+
   // Settings operations
   getSettings: adminQuery.query(async () => {
-    const db = getDb();
     // In a real app, you'd have a settings table
     // For now, returning default values
     return {
@@ -470,8 +554,7 @@ export const adminRouter = createRouter({
         jobAutoCloseDays: z.number().min(1).optional(),
       })
     )
-    .mutation(async ({ input }) => {
-      const db = getDb();
+    .mutation(async () => {
       // In a real app, you'd update a settings table
       // For now, just returning success (settings would be stored elsewhere)
       return { success: true };

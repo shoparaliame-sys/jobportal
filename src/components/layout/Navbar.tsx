@@ -8,25 +8,26 @@ import {
   Briefcase,
   Building2,
   LayoutGrid,
-  PlusCircle,
   LogOut,
   User,
-  ChevronDown,
   Shield,
   BarChart3,
 } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ alwaysSolid = false }: { alwaysSolid?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, isAuthenticated, isAdmin, isCompany, logout } = useAuth();
   const navigate = useNavigate();
 
+  const isSolid = alwaysSolid || scrolled;
+
   useEffect(() => {
+    if (alwaysSolid) return;
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [alwaysSolid]);
 
   const scrollToSection = (id: string) => {
     setMobileOpen(false);
@@ -50,7 +51,7 @@ export default function Navbar() {
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
+          isSolid
             ? "bg-white shadow-md text-slate-900"
             : "bg-transparent text-white"
         }`}
@@ -59,8 +60,11 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-[72px]">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
-              <span className={`text-xl font-bold tracking-tight ${scrolled ? "text-slate-900" : "text-white"}`}>
-                ReKrute<span className="text-orange-500">.</span>
+              <div className="bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm flex items-center justify-center">
+                <img src="/logo-icon.png" alt="Logo" className="h-6 w-6 object-contain" />
+              </div>
+              <span className={`text-xl font-bold tracking-tight ${isSolid ? "text-slate-900" : "text-white"}`}>
+                Maroc<span className="text-orange-500"> Offres</span>
               </span>
             </Link>
 
@@ -72,7 +76,7 @@ export default function Navbar() {
                     key={link.label}
                     onClick={link.action}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/10 ${
-                      scrolled ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white"
+                      isSolid ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white"
                     }`}
                   >
                     <link.icon className="w-4 h-4" />
@@ -83,7 +87,7 @@ export default function Navbar() {
                     key={link.label}
                     to={link.href!}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      scrolled ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white hover:bg-white/10"
+                      isSolid ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white hover:bg-white/10"
                     }`}
                   >
                     <link.icon className="w-4 h-4" />
@@ -95,7 +99,7 @@ export default function Navbar() {
                 <Link
                   to="/company-dashboard"
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    scrolled ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white hover:bg-white/10"
+                    isSolid ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   <BarChart3 className="w-4 h-4" />
@@ -106,7 +110,7 @@ export default function Navbar() {
                 <Link
                   to="/admin"
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    scrolled ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white hover:bg-white/10"
+                    isSolid ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white/90 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   <Shield className="w-4 h-4" />
@@ -123,7 +127,7 @@ export default function Navbar() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`gap-2 ${scrolled ? "text-slate-700 hover:text-slate-900" : "text-white hover:text-white hover:bg-white/10"}`}
+                      className={`gap-2 ${isSolid ? "text-slate-700 hover:text-slate-900" : "text-white hover:text-white hover:bg-white/10"}`}
                     >
                       <User className="w-4 h-4" />
                       {user?.firstName || user?.name || "Profil"}
@@ -133,7 +137,7 @@ export default function Navbar() {
                     variant="ghost"
                     size="sm"
                     onClick={logout}
-                    className={`gap-2 ${scrolled ? "text-slate-700 hover:text-slate-900" : "text-white hover:text-white hover:bg-white/10"}`}
+                    className={`gap-2 ${isSolid ? "text-slate-700 hover:text-slate-900" : "text-white hover:text-white hover:bg-white/10"}`}
                   >
                     <LogOut className="w-4 h-4" />
                   </Button>
@@ -144,7 +148,7 @@ export default function Navbar() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`${scrolled ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white hover:text-white hover:bg-white/10"}`}
+                      className={`${isSolid ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100" : "text-white hover:text-white hover:bg-white/10"}`}
                     >
                       Connexion
                     </Button>
@@ -164,7 +168,7 @@ export default function Navbar() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`md:hidden p-2 rounded-lg ${scrolled ? "text-slate-700" : "text-white"}`}
+              className={`md:hidden p-2 rounded-lg ${isSolid ? "text-slate-700" : "text-white"}`}
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>

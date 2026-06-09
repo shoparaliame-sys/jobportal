@@ -7,8 +7,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import {
-  User, Briefcase, Bookmark, Bell, Settings, LogOut,
-  MapPin, Clock, ChevronRight, FileText, CheckCircle,
+  User, Briefcase, Bookmark, Settings, LogOut,
+  MapPin, Clock, FileText, CheckCircle,
   XCircle, AlertCircle, Eye, Trash2, DollarSign, Building2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.E
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "applications" | "saved" | "profile">("overview");
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
 
   const { data: applications } = trpc.application.myApplications.useQuery();
   const { data: savedJobs, isLoading: savedJobsLoading, refetch: refetchSavedJobs } = trpc.job.savedJobs.useQuery(
@@ -45,7 +45,7 @@ export default function Dashboard() {
 
   const stats = [
     { label: "Candidatures", value: applications?.length ?? 0, icon: Briefcase, color: "bg-blue-50 text-blue-600" },
-    { label: "En cours", value: applications?.filter((a) => ["applied", "contacted", "shortlisted"].includes(a.status)).length ?? 0, icon: Clock, color: "bg-amber-50 text-amber-600" },
+    { label: "En cours", value: applications?.filter((a) => ["applied", "contacted", "shortlisted"].includes(a.status as string)).length ?? 0, icon: Clock, color: "bg-amber-50 text-amber-600" },
     { label: "Retenus", value: applications?.filter((a) => a.status === "fit").length ?? 0, icon: CheckCircle, color: "bg-green-50 text-green-600" },
   ];
 
@@ -58,7 +58,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
+      <Navbar alwaysSolid />
 
       <div className="pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
@@ -145,7 +145,7 @@ export default function Dashboard() {
                   {applications && applications.length > 0 ? (
                     <div className="space-y-3">
                       {applications.slice(0, 5).map((app) => {
-                        const status = statusConfig[app.status] || statusConfig.applied;
+                        const status = statusConfig[app.status as string] || statusConfig.applied;
                         return (
                           <Link key={app.id} to={`/jobs/${app.jobId}`}>
                             <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
@@ -187,7 +187,7 @@ export default function Dashboard() {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {applications.map((app) => {
-                            const status = statusConfig[app.status] || statusConfig.applied;
+                            const status = statusConfig[app.status as string] || statusConfig.applied;
                             return (
                               <tr key={app.id} className="hover:bg-slate-50">
                                 <td className="px-4 py-3">

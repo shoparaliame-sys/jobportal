@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   BarChart3, Briefcase, Users, Settings, LogOut, Shield,
   TrendingUp, CheckCircle, XCircle, Clock, FileText,
-  Plus, Edit2, Trash2,
+  Plus, Edit2, Trash2, RefreshCw, ActivitySquare, AlertTriangle, CheckCircle2
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -67,6 +67,8 @@ export default function Admin() {
   const { data: allApplications } = trpc.admin.allApplications.useQuery({ page: 1, limit: 20 });
   const { data: allUsers } = trpc.admin.allUsers.useQuery({ page: 1, limit: 20 });
   const { data: feeds } = trpc.admin.feeds.useQuery();
+  const { data: feedStats } = trpc.admin.feedStats.useQuery(undefined, { enabled: activeTab === "feeds" });
+  const { data: feedLogs } = trpc.admin.feedLogs.useQuery({ limit: 10 }, { enabled: activeTab === "feeds" });
   const utils = trpc.useContext();
 
   // Mutations
@@ -195,7 +197,7 @@ export default function Admin() {
       setFeedForm({ name: "", url: "", frequency: "daily", status: "active" });
       toast.success("Flux crï¿½ï¿½");
     },
-    onError: () => toast.error("Erreur lors de la crï¿½ation"),
+    onError: (err: any) => toast.error(err?.message || "Erreur lors de la crï¿½ation"),
   });
 
   const updateFeedMutation = trpc.admin.updateFeed.useMutation({
@@ -206,7 +208,7 @@ export default function Admin() {
       setFeedForm({ name: "", url: "", frequency: "daily", status: "active" });
       toast.success("Flux mis ï¿½ jour");
     },
-    onError: () => toast.error("Erreur lors de la mise ï¿½ jour"),
+    onError: (err: any) => toast.error(err?.message || "Erreur lors de la mise ï¿½ jour"),
   });
 
   const deleteFeedMutation = trpc.admin.deleteFeed.useMutation({
@@ -214,9 +216,18 @@ export default function Admin() {
       utils.admin.feeds.invalidate();
       setDeleteConfirmOpen(false);
       setDeleteId(null);
-      toast.success("Flux supprimï¿½");
+      toast.success("Flux supprimé");
     },
     onError: () => toast.error("Erreur lors de la suppression"),
+  });
+
+  const syncFeedMutation = trpc.admin.syncFeed.useMutation({
+    onSuccess: () => {
+      utils.admin.feeds.invalidate();
+      utils.admin.allJobs.invalidate();
+      toast.success("Synchronisation lancée en arrière-plan");
+    },
+    onError: () => toast.error("Erreur lors du lancement de la synchronisation"),
   });
 
   const deleteApplicationMutation = trpc.admin.deleteApplication.useMutation({
@@ -374,7 +385,7 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
+      <Navbar alwaysSolid />
 
       <div className="pt-24 pb-16 flex flex-col lg:flex-row">
         {/* Admin Sidebar */}
@@ -700,11 +711,43 @@ export default function Admin() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-slate-900">Flux RSS</h1>
-                <Button onClick={() => { setEditingFeed(null); setFeedForm({ name: "", url: "", frequency: "daily", status: "active" }); setFeedDialogOpen(true); }} className="bg-orange-500 hover:bg-orange-600 gap-2">
-                  <Plus className="w-4 h-4" /> Nouveau Flux
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => syncFeedMutation.mutate({})} 
+                    variant="outline" 
+                    className="gap-2"
+                    disabled={syncFeedMutation.isPending}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${syncFeedMutation.isPending ? "animate-spin" : ""}`} /> 
+                    Synchroniser Tout
+                  </Button>
+                  <Button onClick={() => { setEditingFeed(null); setFeedForm({ name: "", url: "", frequency: "daily", status: "active" }); setFeedDialogOpen(true); }} className="bg-orange-500 hover:bg-orange-600 gap-2">
+                    <Plus className="w-4 h-4" /> Nouveau Flux
+                  </Button>
+                </div>
               </div>
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              
+              {/* Dashboard metrics for Feeds */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {[
+                  { label: "Total Flux", value: feeds?.length || 0, color: "bg-blue-50 text-blue-600", icon: FileText },
+                  { label: "Sains", value: feedStats?.statusCounts?.find((s: any) => s.status === 'healthy')?.count || 0, color: "bg-green-50 text-green-600", icon: CheckCircle2 },
+                  { label: "En erreur", value: feedStats?.statusCounts?.find((s: any) => ['warning', 'failed', 'blocked', 'timeout'].includes(s.status))?.count || 0, color: "bg-red-50 text-red-600", icon: AlertTriangle },
+                  { label: "Temps moyen", value: `${Math.round(feedStats?.averageResponseTime || 0)}ms`, color: "bg-purple-50 text-purple-600", icon: ActivitySquare },
+                ].map((s, i) => (
+                  <div key={i} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${s.color}`}>
+                      <s.icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-slate-900">{s.value}</div>
+                      <div className="text-xs text-slate-500">{s.label}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-6">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 border-b border-slate-200">
@@ -721,14 +764,30 @@ export default function Admin() {
                         <tr key={f.id} className="hover:bg-slate-50">
                           <td className="px-4 py-3 font-medium text-slate-900">{f.name}</td>
                           <td className="px-4 py-3 text-slate-600 text-xs truncate">{f.url}</td>
-                          <td className="px-4 py-3 text-slate-600">{f.frequency || f.syncFrequency || "6h"}</td>
+                          <td className="px-4 py-3 text-slate-600">{f.syncFrequency || f.frequency || "6h"}</td>
                           <td className="px-4 py-3">
-                            <span className={`text-xs px-2 py-1 rounded-full ${(f.isActive || f.status === "active") ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
-                              {f.isActive || f.status === "active" ? "Actif" : "Inactif"}
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              f.status === 'healthy' ? "bg-green-50 text-green-600" :
+                              f.status === 'warning' ? "bg-amber-50 text-amber-600" :
+                              f.status === 'failed' || f.status === 'timeout' ? "bg-red-50 text-red-600" :
+                              f.status === 'blocked' ? "bg-slate-100 text-slate-600" :
+                              f.isActive ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-600"
+                            }`}>
+                              {f.status ? f.status.toUpperCase() : (f.isActive ? "ACTIF" : "INACTIF")}
                             </span>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-blue-600 h-7 px-2" 
+                                onClick={() => syncFeedMutation.mutate({ id: f.id })}
+                                disabled={syncFeedMutation.isPending}
+                                title="Synchroniser ce flux"
+                              >
+                                <RefreshCw className="w-3.5 h-3.5" />
+                              </Button>
                               <Button size="sm" variant="ghost" className="text-slate-600 h-7 px-2" onClick={() => openFeedDialog(f)}>
                                 <Edit2 className="w-3.5 h-3.5" />
                               </Button>
@@ -739,6 +798,50 @@ export default function Admin() {
                           </td>
                         </tr>
                       ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Logs Section */}
+              <h2 className="text-xl font-bold text-slate-900 mb-4 mt-8">Journaux rï¿½cents</h2>
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50 border-b border-slate-200">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Date</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">URL</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Durï¿½e</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Offres</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Statut</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {feedLogs?.map((log: any) => (
+                        <tr key={log.id} className="hover:bg-slate-50">
+                          <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">
+                            {new Date(log.startedAt).toLocaleString("fr-FR")}
+                          </td>
+                          <td className="px-4 py-3 text-slate-600 text-xs truncate max-w-xs">{log.url}</td>
+                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{log.duration}ms</td>
+                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{log.jobsImported} importï¿½es</td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              log.status === "success" ? "bg-green-50 text-green-600" :
+                              log.status === "skipped" ? "bg-blue-50 text-blue-600" : "bg-red-50 text-red-600"
+                            }`}>
+                              {log.status.toUpperCase()}
+                            </span>
+                            {log.errorMessage && <p className="text-xs text-red-500 mt-1">{log.errorMessage}</p>}
+                          </td>
+                        </tr>
+                      ))}
+                      {!feedLogs?.length && (
+                        <tr>
+                          <td colSpan={5} className="text-center py-6 text-slate-500">Aucun journal rï¿½cent.</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -930,7 +1033,9 @@ export default function Admin() {
         </DialogContent>
       </Dialog>
 
-      <Footer />
+      <div className="lg:pl-60 bg-slate-900">
+        <Footer />
+      </div>
     </div>
   );
 }

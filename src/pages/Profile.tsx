@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { trpc } from "@/providers/trpc";
@@ -7,15 +6,13 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  User, Mail, Phone, MapPin, FileText, Briefcase,
-  GraduationCap, Award, Save, X, Plus, ExternalLink,
+  User, Mail, Phone, MapPin, FileText,
+  Award, Save, X, Plus, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Profile() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const utils = trpc.useContext();
   const [isEditing, setIsEditing] = useState(false);

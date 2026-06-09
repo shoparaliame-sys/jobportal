@@ -8,9 +8,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div>
-            <Link to="/" className="inline-block mb-4">
-              <span className="text-2xl font-bold tracking-tight">
-                ReKrute<span className="text-orange-500">.</span>
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+              <div className="bg-white p-1.5 rounded-lg border border-slate-700 shadow-sm flex items-center justify-center">
+                <img src="/logo-icon.png" alt="Logo" className="h-6 w-6 object-contain" />
+              </div>
+              <span className="text-2xl font-bold tracking-tight text-white">
+                Maroc<span className="text-orange-500"> Offres</span>
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
@@ -65,7 +68,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-slate-500 text-sm">&copy; 2025 ReKrute. Tous droits réservés.</p>
+          <p className="text-slate-500 text-sm">&copy; 2025 Maroc Offres. Tous droits réservés.</p>
           <p className="text-slate-500 text-sm">Fait avec <span className="text-orange-500">passion</span> au Maroc</p>
         </div>
       </div>

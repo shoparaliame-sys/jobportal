@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, desc, and, sql, gte } from "drizzle-orm";
+import { eq, desc, and, sql, gte, inArray } from "drizzle-orm";
 import { createRouter, authedQuery } from "./middleware";
 import { getDb } from "./queries/connection";
 import * as schema from "@db/schema";
@@ -80,7 +80,10 @@ export const applicationRouter = createRouter({
 
           const jobIds = companyJobs.map((j) => j.id);
           if (jobIds.length > 0) {
-            conditions.push(sql`${schema.applications.jobId} IN (${jobIds.join(",")})`);
+            conditions.push(inArray(schema.applications.jobId, jobIds));
+          } else {
+            // Force 0 results if the company has no jobs
+            conditions.push(eq(schema.applications.id, -1));
           }
         }
       }

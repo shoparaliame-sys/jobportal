@@ -7,8 +7,8 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Search, Filter, MapPin, Briefcase, Award, Download,
-  FileText, Mail, Phone, User, ChevronRight,
+  Search, Filter, MapPin, Award, Download,
+  FileText, Mail, Phone,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -160,7 +160,7 @@ export default function CVDatabase() {
                           {candidate.firstName} {candidate.lastName}
                         </h3>
                         <p className="text-sm text-slate-600">
-                          {candidate.role === "seeker" ? "Demandeur d'emploi" : candidate.role}
+                          Demandeur d'emploi
                         </p>
                       </div>
                     </div>

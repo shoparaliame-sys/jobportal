@@ -206,6 +206,26 @@ export const jobRouter = createRouter({
       }));
     }),
 
+  myJobs: authedQuery.query(async ({ ctx }) => {
+    const db = getDb();
+    
+    const [company] = await db
+      .select()
+      .from(schema.companies)
+      .where(eq(schema.companies.userId, ctx.user.id))
+      .limit(1);
+
+    if (!company) return { jobs: [] };
+
+    const jobs = await db
+      .select()
+      .from(schema.jobs)
+      .where(eq(schema.jobs.companyId, company.id))
+      .orderBy(desc(schema.jobs.createdAt));
+
+    return { jobs };
+  }),
+
   create: authedQuery
     .input(
       z.object({
@@ -217,7 +237,7 @@ export const jobRouter = createRouter({
         experienceLevel: z.enum(["junior", "confirme", "senior", "expert"]).optional(),
         salaryMin: z.number().optional(),
         salaryMax: z.number().optional(),
-        categoryId: z.number(),
+        categoryId: z.number().optional(),
         tags: z.array(z.string()).optional(),
       })
     )

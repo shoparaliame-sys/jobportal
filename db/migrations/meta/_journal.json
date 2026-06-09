@@ -8,6 +8,13 @@
       "when": 1780078848714,
       "tag": "0000_mature_gravity",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781011742388,
+      "tag": "0001_slippery_white_queen",
+      "breakpoints": true
     }
   ]
 }

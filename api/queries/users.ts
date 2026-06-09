@@ -34,5 +34,5 @@ export async function upsertUser(data: { unionId: string; name?: string | null; 
   await db
     .insert(schema.users)
     .values(values)
-    .onDuplicateKeyUpdate({ set: updateSet });
+    .onConflictDoUpdate({ target: schema.users.unionId, set: updateSet });
 }

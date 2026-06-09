@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, Link } from "react-router";
 import { motion } from "framer-motion";
 import { trpc } from "@/providers/trpc";
@@ -6,8 +6,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import {
-  Search, MapPin, Briefcase, Banknote, Clock, ChevronDown,
-  Grid3X3, List, X, Building2, Filter,
+  Search, MapPin, Briefcase, Banknote, Clock,
+  Grid3X3, List, X,
 } from "lucide-react";
 
 const JOB_TYPES = [
@@ -25,7 +25,13 @@ const EXP_LEVELS = [
   { value: "expert", label: "Expert" },
 ];
 
-const CITIES = ["Casablanca", "Rabat", "Marrakech", "Tanger", "Fès", "Agadir", "Oujda", "Tétouan"];
+const CITIES = [
+  "Casablanca", "Rabat", "Marrakech", "Tanger", "Fès",
+  "Agadir", "Oujda", "Tétouan", "Salé", "Kenitra",
+  "Mohammedia", "El Jadida", "Safi", "Béni Mellal", "Nador",
+  "Meknès", "Khouribga", "Settat", "Taza", "Errachidia",
+  "Laâyoune", "Dakhla", "Guelmim", "Essaouira", "Ifrane",
+];
 
 export default function Jobs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -240,13 +246,13 @@ export default function Jobs() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="text-base font-semibold text-slate-900 line-clamp-1">{job.title}</h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
+                          <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0 ${
                             job.sourceType === "internal" ? "bg-orange-50 text-orange-600" : "bg-blue-50 text-blue-600"
                           }`}>
-                            {job.sourceType === "internal" ? "Direct" : "Importé"}
+                            {job.sourceType === "internal" ? "Direct" : `Via ${job.sourceName || "RSS"}`}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-500 mb-2">{job.company?.name || "ReKrute"}</p>
+                        <p className="text-sm text-slate-500 mb-2">{job.company?.name || "Maroc Offres"}</p>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
                           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{job.location}</span>
                           <span className="flex items-center gap-1"><Briefcase className="w-3 h-3" />{job.jobType?.toUpperCase()}</span>
@@ -268,11 +274,18 @@ export default function Jobs() {
               <motion.div key={job.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <Link to={`/jobs/${job.id}`}>
                   <div className="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all h-full">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm">
-                        {job.company?.name?.charAt(0) || "R"}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm">
+                          {job.company?.name?.charAt(0) || "R"}
+                        </div>
+                        <span className="text-sm font-medium text-slate-700">{job.company?.name || "Maroc Offres"}</span>
                       </div>
-                      <span className="text-sm font-medium text-slate-700">{job.company?.name || "ReKrute"}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                        job.sourceType === "internal" ? "bg-orange-50 text-orange-600" : "bg-blue-50 text-blue-600"
+                      }`}>
+                        {job.sourceType === "internal" ? "Direct" : `Via ${job.sourceName || "RSS"}`}
+                      </span>
                     </div>
                     <h3 className="text-base font-semibold text-slate-900 mb-2 line-clamp-2">{job.title}</h3>
                     <div className="flex flex-wrap gap-3 text-xs text-slate-500">

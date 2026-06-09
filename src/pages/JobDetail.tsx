@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   MapPin, Briefcase, Clock, Banknote, Building2, Calendar,
   ExternalLink, Bookmark, Share2, ArrowLeft, CheckCircle,
-  Globe, Users,
+  Globe,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -149,7 +149,7 @@ export default function JobDetail() {
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">{job.title}</h1>
                     <p className="text-slate-500 flex items-center gap-1">
                       <Building2 className="w-4 h-4" />
-                      {job.company?.name || job.sourceName || "ReKrute"}
+                      {job.company?.name || job.sourceName || "Maroc Offres"}
                       {job.sourceType !== "internal" && (
                         <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full ml-2">
                           Importé depuis {job.sourceName}
@@ -315,7 +315,7 @@ export default function JobDetail() {
                   <Link key={j.id} to={`/jobs/${j.id}`}>
                     <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all">
                       <h3 className="font-semibold text-slate-900 text-sm line-clamp-2 mb-1">{j.title}</h3>
-                      <p className="text-xs text-slate-500 mb-2">{j.company?.name || "ReKrute"}</p>
+                      <p className="text-xs text-slate-500 mb-2">{j.company?.name || "Maroc Offres"}</p>
                       <span className="text-xs text-slate-400 flex items-center gap-1"><MapPin className="w-3 h-3" />{j.location}</span>
                     </div>
                   </Link>

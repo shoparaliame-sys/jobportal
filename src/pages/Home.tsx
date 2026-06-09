@@ -6,18 +6,18 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import {
-  Search, MapPin, Briefcase, Building2, Clock, Banknote,
-  ArrowRight, Star, TrendingUp, Users, Bookmark, CheckCircle,
+  Search, MapPin, Briefcase, Building2, Banknote,
+  ArrowRight, TrendingUp, Users,
   Monitor, Calculator, Megaphone, Wrench, HeartPulse,
   GraduationCap, Scale, Truck, Plane, Send, ChevronRight,
 } from "lucide-react";
 
-const staggerContainer = {
+const staggerContainer: any = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
-const fadeUp = {
+const fadeUp: any = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } },
 };
@@ -44,7 +44,6 @@ export default function Home() {
       <CategoriesSection categories={categories ?? []} />
       <CTABanner />
       <LatestJobs jobs={recentJobs ?? []} />
-      <Testimonials />
       <Footer />
     </div>
   );
@@ -160,7 +159,7 @@ function HeroSection({ stats }: { stats?: { jobs: number; companies: number; app
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              ReKrute agrège des milliers d&apos;offres d&apos;emploi de sources multiples — postulez en un clic et suivez vos candidatures.
+              Maroc Offres agrège des milliers d&apos;offres d&apos;emploi de sources multiples — postulez en un clic et suivez vos candidatures.
             </motion.p>
 
             <motion.div
@@ -179,10 +178,10 @@ function HeroSection({ stats }: { stats?: { jobs: number; companies: number; app
               animate="visible"
             >
               {[
-                { value: stats?.jobs ?? 12400, suffix: "+", label: "Offres d'emploi" },
-                { value: stats?.companies ?? 2800, suffix: "+", label: "Entreprises" },
-                { value: stats?.applications ?? 850000, suffix: "+", label: "Candidats" },
-                { value: stats?.sources ?? 15, suffix: "+", label: "Sources d'offres" },
+                { value: stats?.jobs ?? 0, suffix: "+", label: "Offres d'emploi" },
+                { value: stats?.companies ?? 0, suffix: "+", label: "Entreprises" },
+                { value: stats?.applications ?? 0, suffix: "+", label: "Candidats" },
+                { value: stats?.sources ?? 0, suffix: "+", label: "Sources d'offres" },
               ].map((stat, i) => (
                 <motion.div key={i} variants={fadeUp}>
                   <div className="text-2xl font-bold text-orange-500 font-mono">
@@ -213,6 +212,14 @@ function HeroSection({ stats }: { stats?: { jobs: number; companies: number; app
   );
 }
 
+const MOROCCAN_CITIES = [
+  "Casablanca", "Rabat", "Marrakech", "Tanger", "Fès",
+  "Agadir", "Oujda", "Tétouan", "Salé", "Kenitra",
+  "Mohammedia", "El Jadida", "Safi", "Béni Mellal", "Nador",
+  "Meknès", "Khouribga", "Settat", "Taza", "Errachidia",
+  "Laâyoune", "Dakhla", "Guelmim", "Essaouira", "Ifrane",
+];
+
 // ── Search Bar ──
 function SearchBar() {
   const navigate = useNavigate();
@@ -242,14 +249,16 @@ function SearchBar() {
       <div className="w-px bg-slate-200 hidden sm:block" />
       <div className="flex items-center gap-3 px-4 py-2 min-h-[44px] sm:w-48">
         <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
-        <input
-          type="text"
-          placeholder="Ville"
+        <select
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-sm outline-none"
-        />
+          className="w-full bg-transparent text-sm outline-none text-slate-900 appearance-none cursor-pointer"
+        >
+          <option value="">Toutes les villes</option>
+          {MOROCCAN_CITIES.map((city) => (
+            <option key={city} value={city}>{city}</option>
+          ))}
+        </select>
       </div>
       <Button
         onClick={handleSearch}
@@ -274,7 +283,7 @@ function TrustedCompanies({ companies }: { companies: Array<{ name: string; logo
     <section className="py-16 bg-slate-50 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-center text-lg font-semibold text-slate-700 mb-8">
-          Ils Recrutent Sur <span className="text-orange-500">ReKrute</span>
+          Ils Recrutent Sur <span className="text-orange-500">Maroc Offres</span>
         </h2>
         <div className="overflow-hidden relative group">
           <div className="flex gap-6 animate-marquee group-hover:[animation-play-state:paused]">
@@ -388,14 +397,14 @@ function JobCard({ job }: { job: any }) {
               <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-600">
                 {job.company?.name?.charAt(0) || "R"}
               </div>
-              <span className="text-sm font-medium text-slate-700">{job.company?.name || "ReKrute"}</span>
+              <span className="text-sm font-medium text-slate-700">{job.company?.name || "Maroc Offres"}</span>
             </div>
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1 ${
               job.sourceType === "internal"
                 ? "bg-orange-50 text-orange-600"
                 : "bg-blue-50 text-blue-600"
             }`}>
-              {job.sourceType === "internal" ? "Direct" : "Importé"}
+              {job.sourceType === "internal" ? "Direct" : `Via ${job.sourceName || "RSS"}`}
             </span>
           </div>
           <h3 className="text-base font-semibold text-slate-900 mb-2 line-clamp-2">{job.title}</h3>
@@ -556,49 +565,4 @@ function LatestJobs({ jobs }: { jobs: Array<any> }) {
   );
 }
 
-// ── Testimonials ──
-function Testimonials() {
-  const testimonials = [
-    { name: "Amine Benali", role: "Développeur Full Stack", company: "Capgemini Maroc", text: "Grâce à ReKrute, j'ai trouvé mon emploi de rêve en moins de 2 semaines. La plateforme est intuitive et les alertes sont très utiles." },
-    { name: "Sara El Amrani", role: "Chef de Projet Marketing", company: "Attijariwafa Bank", text: "J'apprécie la qualité des offres proposées. Chaque poste est détaillé et le processus de candidature est rapide et efficace." },
-    { name: "Youssef Tahiri", role: "Ingénieur DevOps", company: "OCP Group", text: "Le suivi des candidatures est excellent. Je peux voir exactement où en est chaque candidature. Une vraie plateforme moderne !" },
-  ];
 
-  return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2
-          className="text-3xl font-bold text-center text-slate-900 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          Ils Ont Trouvé Leur Job Grâce à <span className="text-orange-500">ReKrute</span>
-        </motion.h2>
-        <motion.div
-          className="grid md:grid-cols-3 gap-6"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          {testimonials.map((t, i) => (
-            <motion.div key={i} variants={fadeUp} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="text-orange-500 text-4xl font-serif mb-4">&ldquo;</div>
-              <p className="text-slate-600 text-sm leading-relaxed mb-5 italic">{t.text}</p>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
-                  {t.name.charAt(0)}
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-slate-900">{t.name}</div>
-                  <div className="text-xs text-slate-500">{t.role} — {t.company}</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  );
-}

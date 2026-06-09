@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  BarChart3, Briefcase, Users, Settings, LogOut, ArrowLeft,
-  TrendingUp, Eye, CheckCircle, XCircle, Clock, FileText,
-  MapPin, ChevronDown, Plus, AlertCircle, Edit2, Trash2,
+  BarChart3, Briefcase, Users, Settings, LogOut,
+  TrendingUp, FileText,
+  Plus, Edit2, Trash2, Mail, Phone, MapPin, ExternalLink, Calendar, Award,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -39,9 +39,9 @@ const atsColumns = ["applied", "contacted", "shortlisted", "fit", "not_fit"] as 
 type Job = { id: number; title: string; description: string; location: string; jobType: string; status: string };
 
 export default function CompanyDashboard() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "jobs" | "ats" | "candidates" | "settings">("overview");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter] = useState("");
 
   const [companyForm, setCompanyForm] = useState({
     name: "",
@@ -60,13 +60,17 @@ export default function CompanyDashboard() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteJobId, setDeleteJobId] = useState<number | null>(null);
 
+  // Candidate dialog states
+  const [candidateDialogOpen, setCandidateDialogOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+
   // Data queries
   const { data: stats } = trpc.application.companyStats.useQuery();
   const { data: applications } = trpc.application.list.useQuery(
     statusFilter ? { status: statusFilter, page: 1, limit: 50 } : { page: 1, limit: 50 }
   );
   const { data: myCompany } = trpc.company.myCompany.useQuery();
-  const { data: myJobs } = trpc.job.list.useQuery({ page: 1, limit: 100 });
+  const { data: myJobs } = trpc.job.myJobs.useQuery();
   const utils = trpc.useContext();
 
   // Mutations
@@ -143,11 +147,11 @@ export default function CompanyDashboard() {
         description: job.description,
         location: job.location,
         jobType: job.jobType,
-        categoryId: 0,
-        tags: "",
-        experienceLevel: "confirme",
-        salaryMin: 0,
-        salaryMax: 0,
+        categoryId: (job as any).categoryId || 0,
+        tags: (job as any).tags ? ((job as any).tags as string[]).join(", ") : "",
+        experienceLevel: (job as any).experienceLevel || "confirme",
+        salaryMin: (job as any).salaryMin || 0,
+        salaryMax: (job as any).salaryMax || 0,
       });
     }
     setJobDialogOpen(true);
@@ -173,7 +177,7 @@ export default function CompanyDashboard() {
         description: jobForm.description,
         location: jobForm.location,
         jobType: jobForm.jobType as any,
-        categoryId: jobForm.categoryId,
+        categoryId: jobForm.categoryId || undefined,
         tags: jobForm.tags ? jobForm.tags.split(",").map((t) => t.trim()) : undefined,
       } as any);
     }
@@ -195,7 +199,7 @@ export default function CompanyDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar />
+      <Navbar alwaysSolid />
 
       <div className="pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
@@ -390,7 +394,11 @@ export default function CompanyDashboard() {
                       {applications.applications.slice(0, 5).map((app: any) => {
                         const st = statusConfig[app.status] || statusConfig.applied;
                         return (
-                          <div key={app.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div
+                            key={app.id}
+                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors"
+                            onClick={() => { setSelectedApplication(app); setCandidateDialogOpen(true); }}
+                          >
                             <div className="flex items-center gap-3">
                               <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-sm font-bold">
                                 {(app.user?.firstName || "C").charAt(0)}
@@ -502,6 +510,7 @@ export default function CompanyDashboard() {
                                 key={app.id}
                                 className="bg-white border border-slate-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer"
                                 draggable
+                                onClick={() => { setSelectedApplication(app); setCandidateDialogOpen(true); }}
                               >
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
@@ -515,15 +524,17 @@ export default function CompanyDashboard() {
                                 <p className="text-xs text-slate-400 mt-1">
                                   {app.createdAt ? new Date(app.createdAt).toLocaleDateString("fr-FR") : "—"}
                                 </p>
-                                <select
-                                  value={app.status}
-                                  onChange={(e) => statusMutation.mutate({ id: app.id, status: e.target.value as any })}
-                                  className="mt-2 w-full text-xs border border-slate-200 rounded px-2 py-1 outline-none"
-                                >
-                                  {Object.entries(statusConfig).map(([key, val]) => (
-                                    <option key={key} value={key}>{val.label}</option>
-                                  ))}
-                                </select>
+                                <div onClick={(e) => e.stopPropagation()}>
+                                  <select
+                                    value={app.status}
+                                    onChange={(e) => statusMutation.mutate({ id: app.id, status: e.target.value as any })}
+                                    className="mt-2 w-full text-xs border border-slate-200 rounded px-2 py-1 outline-none"
+                                  >
+                                    {Object.entries(statusConfig).map(([key, val]) => (
+                                      <option key={key} value={key}>{val.label}</option>
+                                    ))}
+                                  </select>
+                                </div>
                               </div>
                             ))}
                             {colApps.length === 0 && (
@@ -558,7 +569,7 @@ export default function CompanyDashboard() {
                         {applications?.applications?.map((app: any) => {
                           const st = statusConfig[app.status] || statusConfig.applied;
                           return (
-                            <tr key={app.id} className="hover:bg-slate-50">
+                            <tr key={app.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => { setSelectedApplication(app); setCandidateDialogOpen(true); }}>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-2">
                                   <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs font-bold">
@@ -571,7 +582,7 @@ export default function CompanyDashboard() {
                               <td className="px-4 py-3 text-slate-500">
                                 {app.createdAt ? new Date(app.createdAt).toLocaleDateString("fr-FR") : "—"}
                               </td>
-                              <td className="px-4 py-3">
+                              <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                                 <select
                                   value={app.status}
                                   onChange={(e) => statusMutation.mutate({ id: app.id, status: e.target.value as any })}
@@ -711,13 +722,138 @@ export default function CompanyDashboard() {
             <Button
               className="bg-red-600 hover:bg-red-700 text-white flex-1"
               onClick={() => {
-                if (deleteJobId) deleteJobMutation.mutate({ id: deleteJobId } as any);
+                if (deleteJobId) deleteJobMutation.mutate({ id: deleteJobId, status: "closed" } as any);
               }}
               disabled={deleteJobMutation.isPending}
             >
               Supprimer
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Candidate Details Dialog */}
+      <Dialog open={candidateDialogOpen} onOpenChange={setCandidateDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+          {selectedApplication && (
+            <>
+              <DialogHeader className="mb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-2xl font-bold">
+                      {(selectedApplication.user?.firstName || "C").charAt(0)}
+                    </div>
+                    <div>
+                      <DialogTitle className="text-xl">
+                        {selectedApplication.user?.firstName} {selectedApplication.user?.lastName}
+                      </DialogTitle>
+                      <DialogDescription className="text-slate-500 mt-1">
+                        Candidature pour <span className="font-medium text-slate-900">{selectedApplication.job?.title}</span>
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Contact Info */}
+                <div className="grid sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div className="flex items-center gap-3 text-sm text-slate-600">
+                    <Mail className="w-4 h-4 text-slate-400" />
+                    <a href={`mailto:${selectedApplication.user?.email}`} className="hover:text-orange-500">
+                      {selectedApplication.user?.email}
+                    </a>
+                  </div>
+                  {selectedApplication.user?.phone && (
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                      <Phone className="w-4 h-4 text-slate-400" />
+                      <a href={`tel:${selectedApplication.user.phone}`} className="hover:text-orange-500">
+                        {selectedApplication.user.phone}
+                      </a>
+                    </div>
+                  )}
+                  {selectedApplication.user?.city && (
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      {selectedApplication.user.city}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 text-sm text-slate-600">
+                    <Calendar className="w-4 h-4 text-slate-400" />
+                    A postulé le {new Date(selectedApplication.createdAt).toLocaleDateString("fr-FR")}
+                  </div>
+                </div>
+
+                {/* Resume/CV */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-orange-500" /> CV et Documents
+                  </h3>
+                  {selectedApplication.user?.resumeUrl ? (
+                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:border-orange-200 hover:bg-orange-50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-900">Curriculum Vitae</p>
+                          <p className="text-xs text-slate-500">Document attaché au profil</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="gap-2 border-orange-200 text-orange-600 hover:bg-orange-100 hover:text-orange-700"
+                        onClick={() => window.open(selectedApplication.user.resumeUrl, "_blank")}
+                      >
+                        <ExternalLink className="w-4 h-4" /> Voir le CV
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl text-center">
+                      <p className="text-sm text-slate-500">Le candidat n'a pas fourni de CV sur son profil.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Skills */}
+                {selectedApplication.user?.skills && Array.isArray(selectedApplication.user.skills) && selectedApplication.user.skills.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                      <Award className="w-4 h-4 text-orange-500" /> Compétences
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedApplication.user.skills.map((skill: string, index: number) => (
+                        <span key={index} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Update Status */}
+                <div className="pt-4 border-t border-slate-100">
+                  <label className="text-sm font-semibold text-slate-900 mb-3 block">
+                    Statut de la candidature
+                  </label>
+                  <div className="flex gap-2">
+                    <select
+                      value={selectedApplication.status}
+                      onChange={(e) => {
+                        statusMutation.mutate({ id: selectedApplication.id, status: e.target.value as any });
+                        setSelectedApplication({ ...selectedApplication, status: e.target.value });
+                      }}
+                      className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                    >
+                      {Object.entries(statusConfig).map(([key, val]) => (
+                        <option key={key} value={key}>{val.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 

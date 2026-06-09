@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
-  Briefcase, Mail, Lock, User, Phone, MapPin, Building2,
-  ArrowRight, Eye, EyeOff,
+  Mail, Lock, User, Building2,
+  Eye, EyeOff,
 } from "lucide-react";
 
 function getOAuthUrl() {
@@ -24,6 +24,7 @@ function getOAuthUrl() {
 }
 
 export default function Login() {
+  const utils = trpc.useUtils();
   const [searchParams] = useSearchParams();
   const defaultType = searchParams.get("type") === "company" ? "company" : "login";
   const [mode, setMode] = useState<"login" | "register" | "company">(defaultType === "company" ? "company" : "login");
@@ -54,7 +55,8 @@ export default function Login() {
     onSuccess: (data) => {
       localStorage.setItem("local_auth_token", data.token);
       toast.success("Connexion réussie !");
-      window.location.href = "/";
+      utils.localAuth.me.invalidate();
+      utils.auth.me.invalidate();
     },
     onError: (err) => {
       toast.error(err.message || "Erreur de connexion");
@@ -65,7 +67,8 @@ export default function Login() {
     onSuccess: (data) => {
       localStorage.setItem("local_auth_token", data.token);
       toast.success("Inscription réussie !");
-      window.location.href = "/";
+      utils.localAuth.me.invalidate();
+      utils.auth.me.invalidate();
     },
     onError: (err) => {
       toast.error(err.message || "Erreur d'inscription");
@@ -74,6 +77,7 @@ export default function Login() {
 
   const companyUserRegisterMutation = trpc.localAuth.register.useMutation();
   const companyProfileRegisterMutation = trpc.company.register.useMutation();
+  const isCompanyRegisterPending = companyUserRegisterMutation.isPending || companyProfileRegisterMutation.isPending;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +131,8 @@ export default function Login() {
       });
 
       toast.success("Compte créé ! En attente de vérification.");
-      window.location.href = "/";
+      utils.localAuth.me.invalidate();
+      utils.auth.me.invalidate();
     } catch (err: any) {
       toast.error(err?.message || "Erreur d'inscription");
     }
@@ -140,14 +145,19 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-orange-950/50" />
         <div className="relative z-10 max-w-md px-8 text-center">
           <div className="mb-6">
-            <Link to="/" className="text-3xl font-bold text-white">
-              ReKrute<span className="text-orange-500">.</span>
+            <Link to="/" className="inline-flex items-center gap-2">
+              <div className="bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm flex items-center justify-center">
+                <img src="/logo-icon.png" alt="Logo" className="h-6 w-6 object-contain" />
+              </div>
+              <span className="text-3xl font-bold tracking-tight text-white">
+                Maroc<span className="text-orange-500"> Offres</span>
+              </span>
             </Link>
           </div>
           <img src="/hero-illustration.png" alt="" className="w-full max-w-sm mx-auto mb-6 opacity-80" />
           <h2 className="text-2xl font-bold text-white mb-3">Votre carrière commence ici</h2>
           <p className="text-white/60 text-sm leading-relaxed">
-            Rejoignez des milliers de professionnels qui ont trouvé leur emploi idéal grâce à ReKrute.
+            Rejoignez des milliers de professionnels qui ont trouvé leur emploi idéal grâce à Maroc Offres.
           </p>
         </div>
       </div>
@@ -162,8 +172,13 @@ export default function Login() {
         >
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-6">
-            <Link to="/" className="text-2xl font-bold text-slate-900">
-              ReKrute<span className="text-orange-500">.</span>
+            <Link to="/" className="inline-flex items-center gap-2">
+              <div className="bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm flex items-center justify-center">
+                <img src="/logo-icon.png" alt="Logo" className="h-6 w-6 object-contain" />
+              </div>
+              <span className="text-2xl font-bold tracking-tight text-slate-900">
+                Maroc<span className="text-orange-500"> Offres</span>
+              </span>
             </Link>
           </div>
 
@@ -191,7 +206,7 @@ export default function Login() {
           {mode === "login" && (
             <form onSubmit={handleLogin} className="space-y-4">
               <h2 className="text-2xl font-bold text-slate-900 mb-1">Connexion</h2>
-              <p className="text-sm text-slate-500 mb-4">Accédez à votre compte ReKrute</p>
+              <p className="text-sm text-slate-500 mb-4">Accédez à votre compte Maroc Offres</p>
 
               <div>
                 <Label htmlFor="login-email" className="text-sm text-slate-700">Email</Label>
@@ -376,10 +391,10 @@ export default function Login() {
 
               <Button
                 type="submit"
-                disabled={companyRegisterMutation.isPending}
+                disabled={isCompanyRegisterPending}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white"
               >
-                {companyRegisterMutation.isPending ? "Envoi..." : "Demander la vérification"}
+                {isCompanyRegisterPending ? "Envoi..." : "Demander la vérification"}
               </Button>
             </form>
           )}

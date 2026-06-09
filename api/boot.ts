@@ -8,6 +8,8 @@ import { createContext } from "./context";
 import { env } from "./lib/env";
 import { createOAuthCallbackHandler } from "./kimi/auth";
 import { Paths } from "@contracts/constants";
+import cron from "node-cron";
+import { processFeeds } from "./sync-feeds";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
@@ -38,6 +40,15 @@ app.use("/api/trpc/*", async (c) => {
   });
 });
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
+
+// Schedule RSS Feed Sync to run at minute 0 past every hour
+cron.schedule("0 * * * *", async () => {
+  try {
+    await processFeeds();
+  } catch (error) {
+    console.error("Scheduled RSS Sync Failed:", error);
+  }
+});
 
 export default app;
 

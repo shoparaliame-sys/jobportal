@@ -7,8 +7,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import {
-  Bookmark, MapPin, Briefcase, Clock, DollarSign, Building2,
-  Heart, Trash2, ExternalLink, ChevronRight,
+  Bookmark, MapPin, Clock, Building2,
+  Trash2, ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 

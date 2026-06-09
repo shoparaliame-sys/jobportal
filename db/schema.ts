@@ -187,9 +187,17 @@ export const feeds = pgTable(
     categoryId: integer("category_id").references(() => categories.id),
     lastSyncAt: timestamp("last_sync_at"),
     lastSyncStatus: pgEnum("last_sync_status", ["success", "error", "pending"])("last_sync_status").default("pending"),
+    status: pgEnum("feed_status", ["healthy", "warning", "failed", "blocked", "timeout", "disabled"])("feed_status").default("healthy"),
     lastError: text("last_error"),
     syncFrequency: pgEnum("sync_frequency", ["hourly", "6h", "12h", "daily"])("sync_frequency").default("6h"),
     jobsImported: integer("jobs_imported").default(0),
+    lastSuccessAt: timestamp("last_success_at"),
+    lastFailureAt: timestamp("last_failure_at"),
+    consecutiveFailures: integer("consecutive_failures").default(0),
+    averageResponseTime: integer("average_response_time").default(0),
+    lastResponseTime: integer("last_response_time").default(0),
+    etag: varchar("etag", { length: 255 }),
+    lastModified: varchar("last_modified", { length: 255 }),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
@@ -198,6 +206,25 @@ export const feeds = pgTable(
 
 export type Feed = typeof feeds.$inferSelect;
 export type InsertFeed = typeof feeds.$inferInsert;
+
+// ── Feed Logs ──────────────────────────────────────────
+export const feedLogs = pgTable("feed_logs", {
+  id: serial("id").primaryKey(),
+  feedId: integer("feed_id").references(() => feeds.id).notNull(),
+  url: varchar("url", { length: 500 }).notNull(),
+  startedAt: timestamp("started_at").notNull(),
+  finishedAt: timestamp("finished_at").notNull(),
+  duration: integer("duration").notNull(),
+  responseCode: integer("response_code"),
+  jobsImported: integer("jobs_imported").default(0),
+  jobsSkipped: integer("jobs_skipped").default(0),
+  jobsUpdated: integer("jobs_updated").default(0),
+  errorMessage: text("error_message"),
+  status: pgEnum("feed_log_status", ["success", "error", "timeout", "skipped"])("feed_log_status").notNull(),
+});
+
+export type FeedLog = typeof feedLogs.$inferSelect;
+export type InsertFeedLog = typeof feedLogs.$inferInsert;
 
 // ── Advertisements ─────────────────────────────────────
 export const advertisements = pgTable("advertisements", {
