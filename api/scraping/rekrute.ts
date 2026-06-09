@@ -2,7 +2,6 @@ import * as cheerio from "cheerio";
 
 export async function scrapeRekruteJobs(): Promise<any[]> {
   const targetUrl = "https://www.rekrute.com/offres.html";
-  const startTime = Date.now();
   
   const response = await fetch(targetUrl, {
     headers: {
