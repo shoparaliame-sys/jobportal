@@ -28,7 +28,6 @@ const replacements = {
   "catï¿½gorie": "catégorie",
   "catgorie": "catégorie",
   "ï¿½": "—",
-  "": "—",
   "Rï¿½le": "Rôle",
   "Rle": "Rôle",
   "Derniï¿½re Sync": "Dernière Sync",

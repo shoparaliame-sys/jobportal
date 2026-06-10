@@ -381,6 +381,10 @@ export const adminRouter = createRouter({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = getDb();
+      await db.delete(schema.applications).where(eq(schema.applications.userId, input.id));
+      await db.delete(schema.savedJobs).where(eq(schema.savedJobs.userId, input.id));
+      await db.delete(schema.activityLogs).where(eq(schema.activityLogs.userId, input.id));
+      await db.update(schema.companies).set({ userId: null }).where(eq(schema.companies.userId, input.id));
       await db.delete(schema.users).where(eq(schema.users.id, input.id));
       return { success: true };
     }),

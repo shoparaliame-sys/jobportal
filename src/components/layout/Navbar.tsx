@@ -59,13 +59,8 @@ export default function Navbar({ alwaysSolid = false }: { alwaysSolid?: boolean 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-[72px]">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <div className="bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm flex items-center justify-center">
-                <img src="/logo-icon.png" alt="Logo" className="h-6 w-6 object-contain" />
-              </div>
-              <span className={`text-xl font-bold tracking-tight ${isSolid ? "text-slate-900" : "text-white"}`}>
-                Maroc<span className="text-orange-500"> Offres</span>
-              </span>
+            <Link to="/" className={`flex items-center shrink-0 transition-all ${!isSolid ? "bg-white/95 px-2 py-1.5 rounded-xl shadow-sm" : ""}`}>
+              <img src="/maroc-offres-logo.png" alt="Maroc Offres" className="h-10 md:h-12 object-contain" />
             </Link>
 
             {/* Desktop Nav */}

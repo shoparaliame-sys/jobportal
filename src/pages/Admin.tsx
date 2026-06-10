@@ -55,7 +55,7 @@ export default function Admin() {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [jobForm, setJobForm] = useState({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0 });
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [userForm, setUserForm] = useState({ name: "", email: "", role: "user" });
+  const [userForm, setUserForm] = useState({ name: "", email: "", role: "seeker" });
   const [editingFeed, setEditingFeed] = useState<Feed | null>(null);
   const [feedForm, setFeedForm] = useState({ name: "", url: "", frequency: "daily", status: "active" });
 
@@ -102,9 +102,9 @@ export default function Admin() {
       utils.admin.allCompanies.invalidate();
       setCompanyDialogOpen(false);
       setCompanyForm({ name: "", industry: "", city: "", contactEmail: "" });
-      toast.success("Entreprise crï¿½ï¿½e");
+      toast.success("Entreprise créée");
     },
-    onError: () => toast.error("Erreur lors de la crï¿½ation"),
+    onError: () => toast.error("Erreur lors de la cràation"),
   });
 
   const updateCompanyMutation = trpc.admin.updateCompany.useMutation({
@@ -113,9 +113,9 @@ export default function Admin() {
       setCompanyDialogOpen(false);
       setEditingCompany(null);
       setCompanyForm({ name: "", industry: "", city: "", contactEmail: "" });
-      toast.success("Entreprise mise ï¿½ jour");
+      toast.success("Entreprise mise à jour");
     },
-    onError: () => toast.error("Erreur lors de la mise ï¿½ jour"),
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 
   const deleteCompanyMutation = trpc.admin.deleteCompany.useMutation({
@@ -123,7 +123,7 @@ export default function Admin() {
       utils.admin.allCompanies.invalidate();
       setDeleteConfirmOpen(false);
       setDeleteId(null);
-      toast.success("Entreprise supprimï¿½e");
+      toast.success("Entreprise supprimée");
     },
     onError: () => toast.error("Erreur lors de la suppression"),
   });
@@ -133,9 +133,9 @@ export default function Admin() {
       utils.admin.allJobs.invalidate();
       setJobDialogOpen(false);
       setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0 });
-      toast.success("Offre crï¿½ï¿½e");
+      toast.success("Offre créée");
     },
-    onError: () => toast.error("Erreur lors de la crï¿½ation"),
+    onError: () => toast.error("Erreur lors de la cràation"),
   });
 
   const updateJobMutation = trpc.admin.updateJob.useMutation({
@@ -144,9 +144,9 @@ export default function Admin() {
       setJobDialogOpen(false);
       setEditingJob(null);
       setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0 });
-      toast.success("Offre mise ï¿½ jour");
+      toast.success("Offre mise à jour");
     },
-    onError: () => toast.error("Erreur lors de la mise ï¿½ jour"),
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 
   const deleteJobMutation = trpc.admin.moderateJob.useMutation({
@@ -154,7 +154,7 @@ export default function Admin() {
       utils.admin.allJobs.invalidate();
       setDeleteConfirmOpen(false);
       setDeleteId(null);
-      toast.success("Offre supprimï¿½e");
+      toast.success("Offre supprimée");
     },
     onError: () => toast.error("Erreur lors de la suppression"),
   });
@@ -163,10 +163,10 @@ export default function Admin() {
     onSuccess: () => {
       utils.admin.allUsers.invalidate();
       setUserDialogOpen(false);
-      setUserForm({ name: "", email: "", role: "user" });
-      toast.success("Utilisateur crï¿½ï¿½");
+      setUserForm({ name: "", email: "", role: "seeker" });
+      toast.success("Utilisateur créé");
     },
-    onError: () => toast.error("Erreur lors de la crï¿½ation"),
+    onError: () => toast.error("Erreur lors de la cràation"),
   });
 
   const updateUserMutation = trpc.admin.updateUser.useMutation({
@@ -174,10 +174,10 @@ export default function Admin() {
       utils.admin.allUsers.invalidate();
       setUserDialogOpen(false);
       setEditingUser(null);
-      setUserForm({ name: "", email: "", role: "user" });
-      toast.success("Utilisateur mis ï¿½ jour");
+      setUserForm({ name: "", email: "", role: "seeker" });
+      toast.success("Utilisateur mis à jour");
     },
-    onError: () => toast.error("Erreur lors de la mise ï¿½ jour"),
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 
   const deleteUserMutation = trpc.admin.deleteUser.useMutation({
@@ -185,7 +185,7 @@ export default function Admin() {
       utils.admin.allUsers.invalidate();
       setDeleteConfirmOpen(false);
       setDeleteId(null);
-      toast.success("Utilisateur supprimï¿½");
+      toast.success("Utilisateur supprimé");
     },
     onError: () => toast.error("Erreur lors de la suppression"),
   });
@@ -195,9 +195,9 @@ export default function Admin() {
       utils.admin.feeds.invalidate();
       setFeedDialogOpen(false);
       setFeedForm({ name: "", url: "", frequency: "daily", status: "active" });
-      toast.success("Flux crï¿½ï¿½");
+      toast.success("Flux créé");
     },
-    onError: (err: any) => toast.error(err?.message || "Erreur lors de la crï¿½ation"),
+    onError: (err: any) => toast.error(err?.message || "Erreur lors de la cràation"),
   });
 
   const updateFeedMutation = trpc.admin.updateFeed.useMutation({
@@ -206,9 +206,9 @@ export default function Admin() {
       setFeedDialogOpen(false);
       setEditingFeed(null);
       setFeedForm({ name: "", url: "", frequency: "daily", status: "active" });
-      toast.success("Flux mis ï¿½ jour");
+      toast.success("Flux mis à jour");
     },
-    onError: (err: any) => toast.error(err?.message || "Erreur lors de la mise ï¿½ jour"),
+    onError: (err: any) => toast.error(err?.message || "Erreur lors de la mise à jour"),
   });
 
   const deleteFeedMutation = trpc.admin.deleteFeed.useMutation({
@@ -235,7 +235,7 @@ export default function Admin() {
       utils.admin.allApplications.invalidate();
       setDeleteConfirmOpen(false);
       setDeleteId(null);
-      toast.success("Candidature supprimï¿½e");
+      toast.success("Candidature supprimée");
     },
     onError: () => toast.error("Erreur lors de la suppression"),
   });
@@ -263,7 +263,7 @@ export default function Admin() {
       setUserForm({ name: user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : ""), email: user.email, role: user.role });
     } else {
       setEditingUser(null);
-      setUserForm({ name: "", email: "", role: "user" });
+      setUserForm({ name: "", email: "", role: "seeker" });
     }
     setUserDialogOpen(true);
   };
@@ -373,7 +373,7 @@ export default function Admin() {
     { key: "applications" as const, label: "Candidatures", icon: Users },
     { key: "users" as const, label: "Utilisateurs", icon: Users },
     { key: "feeds" as const, label: "Flux RSS", icon: FileText },
-    { key: "settings" as const, label: "Paramï¿½tres", icon: Settings },
+    { key: "settings" as const, label: "Paramètres", icon: Settings },
   ];
 
   // Chart data
@@ -416,7 +416,7 @@ export default function Admin() {
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors mt-6 pt-4 border-t border-slate-700"
             >
               <LogOut className="w-4 h-4" />
-              Dï¿½connexion
+              Déconnexion
             </button>
           </div>
         </aside>
@@ -480,7 +480,7 @@ export default function Admin() {
 
                 {stats?.jobsByCategory && stats.jobsByCategory.length > 0 && (
                   <div className="bg-white border border-slate-200 rounded-xl p-6">
-                    <h3 className="text-sm font-semibold text-slate-900 mb-4">Offres par catï¿½gorie</h3>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-4">Offres par catégorie</h3>
                     <ResponsiveContainer width="100%" height={240}>
                       <BarChart data={stats.jobsByCategory} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
@@ -506,7 +506,7 @@ export default function Admin() {
                       <div key={comp.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                         <div>
                           <p className="text-sm font-medium text-slate-900">{comp.name}</p>
-                          <p className="text-xs text-slate-500">{comp.contactEmail} ï¿½ {comp.industry || "ï¿½"}</p>
+                          <p className="text-xs text-slate-500">{comp.contactEmail} à {comp.industry || "à"}</p>
                         </div>
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50 gap-1" onClick={() => approveMutation.mutate({ id: comp.id, status: "approved" } as any)}>
@@ -548,9 +548,9 @@ export default function Admin() {
                         <tr key={comp.id} className="hover:bg-slate-50">
                           <td className="px-4 py-3">
                             <p className="font-medium text-slate-900">{comp.name}</p>
-                            <p className="text-xs text-slate-500">{comp.industry || "ï¿½"}</p>
+                            <p className="text-xs text-slate-500">{comp.industry || "à"}</p>
                           </td>
-                          <td className="px-4 py-3 text-slate-600">{comp.contactEmail || "ï¿½"}</td>
+                          <td className="px-4 py-3 text-slate-600">{comp.contactEmail || "à"}</td>
                           <td className="px-4 py-3">
                             <span className={`text-xs px-2 py-1 rounded-full ${statusColors[comp.status] || ""}`}>
                               {comp.status}
@@ -678,7 +678,7 @@ export default function Admin() {
                       <tr>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Nom</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Email</th>
-                        <th className="text-left px-4 py-3 font-medium text-slate-700">Rï¿½le</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Rôle</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Actions</th>
                       </tr>
                     </thead>
@@ -754,7 +754,7 @@ export default function Admin() {
                       <tr>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Nom</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">URL</th>
-                        <th className="text-left px-4 py-3 font-medium text-slate-700">Frï¿½quence</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Fràquence</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Statut</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Actions</th>
                       </tr>
@@ -804,7 +804,7 @@ export default function Admin() {
               </div>
 
               {/* Logs Section */}
-              <h2 className="text-xl font-bold text-slate-900 mb-4 mt-8">Journaux rï¿½cents</h2>
+              <h2 className="text-xl font-bold text-slate-900 mb-4 mt-8">Journaux récents</h2>
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -812,7 +812,7 @@ export default function Admin() {
                       <tr>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Date</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">URL</th>
-                        <th className="text-left px-4 py-3 font-medium text-slate-700">Durï¿½e</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Durée</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Offres</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Statut</th>
                       </tr>
@@ -825,7 +825,7 @@ export default function Admin() {
                           </td>
                           <td className="px-4 py-3 text-slate-600 text-xs truncate max-w-xs">{log.url}</td>
                           <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{log.duration}ms</td>
-                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{log.jobsImported} importï¿½es</td>
+                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{log.jobsImported} importées</td>
                           <td className="px-4 py-3">
                             <span className={`text-xs px-2 py-1 rounded-full ${
                               log.status === "success" ? "bg-green-50 text-green-600" :
@@ -839,7 +839,7 @@ export default function Admin() {
                       ))}
                       {!feedLogs?.length && (
                         <tr>
-                          <td colSpan={5} className="text-center py-6 text-slate-500">Aucun journal rï¿½cent.</td>
+                          <td colSpan={5} className="text-center py-6 text-slate-500">Aucun journal ràcent.</td>
                         </tr>
                       )}
                     </tbody>
@@ -851,9 +851,9 @@ export default function Admin() {
 
           {activeTab === "settings" && (
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 mb-6">Paramï¿½tres</h1>
+              <h1 className="text-2xl font-bold text-slate-900 mb-6">Paramètres</h1>
               <div className="bg-white border border-slate-200 rounded-xl p-6">
-                <p className="text-slate-500 text-sm">Paramï¿½tres de la plateforme ï¿½ venir.</p>
+                <p className="text-slate-500 text-sm">Paramètres de la plateforme à venir.</p>
               </div>
             </div>
           )}
@@ -864,8 +864,8 @@ export default function Admin() {
       <Dialog open={companyDialogOpen} onOpenChange={setCompanyDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingCompany ? "Modifier l'entreprise" : "Crï¿½er une entreprise"}</DialogTitle>
-            <DialogDescription>{editingCompany ? "Mettez ï¿½ jour les dï¿½tails" : "Ajoutez une nouvelle entreprise"}</DialogDescription>
+            <DialogTitle>{editingCompany ? "Modifier l'entreprise" : "Créer une entreprise"}</DialogTitle>
+            <DialogDescription>{editingCompany ? "Mettez à jour les détails" : "Ajoutez une nouvelle entreprise"}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -900,13 +900,13 @@ export default function Admin() {
       <Dialog open={jobDialogOpen} onOpenChange={setJobDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingJob ? "Modifier l'offre" : "Crï¿½er une offre"}</DialogTitle>
-            <DialogDescription>{editingJob ? "Mettez ï¿½ jour les dï¿½tails" : "Ajoutez une nouvelle offre"}</DialogDescription>
+            <DialogTitle>{editingJob ? "Modifier l'offre" : "Créer une offre"}</DialogTitle>
+            <DialogDescription>{editingJob ? "Mettez à jour les détails" : "Ajoutez une nouvelle offre"}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-slate-700 block mb-2">Titre</label>
-              <Input placeholder="Ex: Dï¿½veloppeur React" value={jobForm.title} onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })} />
+              <Input placeholder="Ex: Dàveloppeur React" value={jobForm.title} onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })} />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700 block mb-2">Description</label>
@@ -941,8 +941,8 @@ export default function Admin() {
       <Dialog open={userDialogOpen} onOpenChange={setUserDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingUser ? "Modifier l'utilisateur" : "Crï¿½er un utilisateur"}</DialogTitle>
-            <DialogDescription>{editingUser ? "Mettez ï¿½ jour les dï¿½tails" : "Ajoutez un nouvel utilisateur"}</DialogDescription>
+            <DialogTitle>{editingUser ? "Modifier l'utilisateur" : "Créer un utilisateur"}</DialogTitle>
+            <DialogDescription>{editingUser ? "Mettez à jour les détails" : "Ajoutez un nouvel utilisateur"}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -954,11 +954,11 @@ export default function Admin() {
               <Input type="email" placeholder="email@exemple.com" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 block mb-2">Rï¿½le</label>
+              <label className="text-sm font-medium text-slate-700 block mb-2">Rôle</label>
               <select value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
-                <option value="user">Utilisateur</option>
+                <option value="seeker">Utilisateur / Candidat</option>
+                <option value="company">Entreprise</option>
                 <option value="admin">Admin</option>
-                <option value="moderator">Modï¿½rateur</option>
               </select>
             </div>
             <div className="flex gap-2 justify-end">
@@ -975,8 +975,8 @@ export default function Admin() {
       <Dialog open={feedDialogOpen} onOpenChange={setFeedDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingFeed ? "Modifier le flux" : "CrÃ©er un flux"}</DialogTitle>
-            <DialogDescription>{editingFeed ? "Mettez Ã  jour les dÃ©tails" : "Ajoutez un nouveau flux RSS"}</DialogDescription>
+            <DialogTitle>{editingFeed ? "Modifier le flux" : "Créer un flux"}</DialogTitle>
+            <DialogDescription>{editingFeed ? "Mettez Ã  jour les détails" : "Ajoutez un nouveau flux RSS"}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -989,7 +989,7 @@ export default function Admin() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 block mb-2">FrÃ©quence</label>
+                <label className="text-sm font-medium text-slate-700 block mb-2">Fréquence</label>
                 <select value={feedForm.frequency} onChange={(e) => setFeedForm({ ...feedForm, frequency: e.target.value })} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
                   <option value="hourly">Horaire</option>
                   <option value="6h">Toutes les 6h</option>
@@ -1021,7 +1021,7 @@ export default function Admin() {
           <DialogHeader>
             <DialogTitle>Confirmer la suppression</DialogTitle>
             <DialogDescription>
-              Cette action ne peut pas Ãªtre annulÃ©e. ÃŠtes-vous sÃ»r de vouloir supprimer cet Ã©lÃ©ment ?
+              Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir supprimer cet élément ?
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 justify-end">
