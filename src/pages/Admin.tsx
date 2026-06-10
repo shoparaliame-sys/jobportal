@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
 };
 
 type Company = { id: number; name: string; industry?: string; city?: string; contactEmail?: string; status: string };
-type Job = { id: number; title: string; description: string; location: string; jobType: string; categoryId?: number };
+type Job = { id: number; title: string; description: string; location: string; jobType: string; categoryId?: number; isFeatured?: boolean };
 type User = { id: number; name?: string; email: string; role: string };
 type Feed = { id: number; name: string; url: string; frequency: string; status: string };
 
@@ -53,7 +53,7 @@ export default function Admin() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [companyForm, setCompanyForm] = useState({ name: "", industry: "", city: "", contactEmail: "" });
   const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const [jobForm, setJobForm] = useState({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0 });
+  const [jobForm, setJobForm] = useState({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0, isFeatured: false });
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userForm, setUserForm] = useState({ name: "", email: "", role: "seeker" });
   const [editingFeed, setEditingFeed] = useState<Feed | null>(null);
@@ -252,7 +252,10 @@ export default function Admin() {
   const openJobDialog = (job?: Job) => {
     if (job) {
       setEditingJob(job);
-      setJobForm({ title: job.title, description: job.description, location: job.location, jobType: job.jobType, categoryId: job.categoryId || 0 });
+      setJobForm({ title: job.title, description: job.description, location: job.location, jobType: job.jobType, categoryId: job.categoryId || 0, isFeatured: job.isFeatured || false });
+    } else {
+      setEditingJob(null);
+      setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0, isFeatured: false });
     }
     setJobDialogOpen(true);
   };
@@ -589,7 +592,7 @@ export default function Admin() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-slate-900">Offres</h1>
-                <Button onClick={() => { setEditingJob(null); setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0 }); setJobDialogOpen(true); }} className="bg-orange-500 hover:bg-orange-600 gap-2">
+                <Button onClick={() => { setEditingJob(null); setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0, isFeatured: false }); setJobDialogOpen(true); }} className="bg-orange-500 hover:bg-orange-600 gap-2">
                   <Plus className="w-4 h-4" /> Nouvelle Offre
                 </Button>
               </div>
@@ -601,6 +604,7 @@ export default function Admin() {
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Titre</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Lieu</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Type</th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-700">Vedette</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-700">Actions</th>
                       </tr>
                     </thead>
@@ -610,6 +614,13 @@ export default function Admin() {
                           <td className="px-4 py-3 font-medium text-slate-900">{job.title}</td>
                           <td className="px-4 py-3 text-slate-600">{job.location}</td>
                           <td className="px-4 py-3 text-slate-600 uppercase text-xs">{job.jobType}</td>
+                          <td className="px-4 py-3">
+                            {job.isFeatured ? (
+                              <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">Vedette</span>
+                            ) : (
+                              <span className="text-xs text-slate-400">-</span>
+                            )}
+                          </td>
                           <td className="px-4 py-3">
                             <div className="flex gap-1">
                               <Button size="sm" variant="ghost" className="text-slate-600 h-7 px-2" onClick={() => openJobDialog(job)}>
@@ -926,6 +937,10 @@ export default function Admin() {
                   <option value="freelance">Freelance</option>
                 </select>
               </div>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <input type="checkbox" id="isFeatured" checked={jobForm.isFeatured} onChange={(e) => setJobForm({ ...jobForm, isFeatured: e.target.checked })} className="rounded border-slate-300 w-4 h-4 text-orange-500 focus:ring-orange-500" />
+              <label htmlFor="isFeatured" className="text-sm font-medium text-slate-700">Mettre en vedette (Featured)</label>
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setJobDialogOpen(false)}>Annuler</Button>

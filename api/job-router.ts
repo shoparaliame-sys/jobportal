@@ -281,6 +281,7 @@ export const jobRouter = createRouter({
         salaryMax: z.number().optional(),
         status: z.enum(["active", "paused", "closed", "draft"]).optional(),
         tags: z.array(z.string()).optional(),
+        isFeatured: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, sql, and } from "drizzle-orm";
 import { createRouter, publicQuery, adminQuery } from "./middleware";
 import { getDb } from "./queries/connection";
 import * as schema from "@db/schema";
@@ -7,10 +7,25 @@ import * as schema from "@db/schema";
 export const categoryRouter = createRouter({
   list: publicQuery.query(async () => {
     const db = getDb();
-    return db
-      .select()
+    const categoriesWithCount = await db
+      .select({
+        id: schema.categories.id,
+        name: schema.categories.name,
+        slug: schema.categories.slug,
+        icon: schema.categories.icon,
+        color: schema.categories.color,
+        displayOrder: schema.categories.displayOrder,
+        jobCount: sql<number>`count(${schema.jobs.id})`.mapWith(Number),
+      })
       .from(schema.categories)
+      .leftJoin(schema.jobs, and(
+        eq(schema.categories.id, schema.jobs.categoryId),
+        eq(schema.jobs.status, "active")
+      ))
+      .groupBy(schema.categories.id)
       .orderBy(asc(schema.categories.displayOrder));
+
+    return categoriesWithCount;
   }),
 
   create: adminQuery
