@@ -11,18 +11,6 @@ import {
   Eye, EyeOff,
 } from "lucide-react";
 
-function getOAuthUrl() {
-  const redirectUri = `${window.location.origin}/api/oauth/callback`;
-  const state = btoa(redirectUri);
-  const authUrl = new URL(`${import.meta.env.VITE_KIMI_AUTH_URL}/api/oauth/authorize`);
-  authUrl.searchParams.set("client_id", import.meta.env.VITE_APP_ID);
-  authUrl.searchParams.set("redirect_uri", redirectUri);
-  authUrl.searchParams.set("response_type", "code");
-  authUrl.searchParams.set("scope", "profile");
-  authUrl.searchParams.set("state", state);
-  return authUrl.toString();
-}
-
 export default function Login() {
   const utils = trpc.useUtils();
   const [searchParams] = useSearchParams();
@@ -255,21 +243,7 @@ export default function Login() {
                 {loginMutation.isPending ? "Connexion..." : "Se connecter"}
               </Button>
 
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-white px-2 text-slate-400">Ou</span>
-                </div>
-              </div>
 
-              <a
-                href={getOAuthUrl()}
-                className="flex items-center justify-center gap-2 w-full border border-slate-200 rounded-lg py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-              >
-                Continuer avec Kimi OAuth
-              </a>
             </form>
           )}
 

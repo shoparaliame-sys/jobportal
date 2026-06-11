@@ -59,8 +59,8 @@ export default function Navbar({ alwaysSolid = false }: { alwaysSolid?: boolean 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-[72px]">
             {/* Logo */}
-            <Link to="/" className={`flex items-center shrink-0 transition-all ${!isSolid ? "bg-white/95 px-2 py-1.5 rounded-xl shadow-sm" : ""}`}>
-              <img src="/maroc-offres-logo.png" alt="Maroc Offres" className="h-10 md:h-12 object-contain" />
+            <Link to="/" className={`flex items-center shrink-0 transition-all ${!isSolid ? "bg-white/95 px-2 py-1 rounded-xl shadow-sm" : ""}`}>
+              <img src="/maroc-offres-logo.png?v=4" alt="Maroc Offres" className="h-12 md:h-14 object-contain" />
             </Link>
 
             {/* Desktop Nav */}

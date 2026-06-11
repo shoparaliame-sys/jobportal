@@ -132,7 +132,7 @@ export default function Admin() {
     onSuccess: () => {
       utils.admin.allJobs.invalidate();
       setJobDialogOpen(false);
-      setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0 });
+      setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0, isFeatured: false });
       toast.success("Offre créée");
     },
     onError: () => toast.error("Erreur lors de la cràation"),
@@ -143,7 +143,7 @@ export default function Admin() {
       utils.admin.allJobs.invalidate();
       setJobDialogOpen(false);
       setEditingJob(null);
-      setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0 });
+      setJobForm({ title: "", description: "", location: "", jobType: "cdi", categoryId: 0, isFeatured: false });
       toast.success("Offre mise à jour");
     },
     onError: () => toast.error("Erreur lors de la mise à jour"),
